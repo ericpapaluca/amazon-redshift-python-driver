@@ -2106,7 +2106,14 @@ class Connection:
         command = values[0]
         _logger.debug("command=%s", command)
         if command in self._commands_with_count:
-            row_count: int = int(values[-1])
+            ###########################################################################################
+            # Manual try/except to handle edge case where we INSERT records into an external table    #
+            # Unfortunately this isn't supported by the driver, and AWS isn't supporting this anymore #
+            try:
+                row_count: int = int(values[-1])
+            except ValueError:
+                row_count: int = 0
+            ##########################################################################################
             if cursor._row_count == -1:
                 cursor._row_count = row_count
             else:
